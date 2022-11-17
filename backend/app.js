@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const helmet = require('helmet');
 const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-// const AuthError = require('./errors/AuthError');
 const NotFoundError = require('./errors/NotFoundError');
 const {
   URL_PATTERN,
@@ -15,7 +15,13 @@ const {
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  optionOkStatus: 200,
+};
 const app = express();
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet());
 app.use(bodyParser.json());
