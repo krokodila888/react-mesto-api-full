@@ -8,7 +8,8 @@ export const enableValidationClasses = ({
   inputErrorBorder: 'popup__input-border',
 });
   
-export const bazeUrl = 'https://mesto.nomoreparties.co/v1/cohort-47'; 
-export const authorization = '4d56a1ba-b22b-45b6-8032-4887d49b9594';
-export const bazeAuthUrl = 'https://auth.nomoreparties.co';
+// export const bazeUrl = 'http://158.160.17.227'; 
+export const bazeUrl = 'http://localhost:3001'; 
+// export const authorization = '4d56a1ba-b22b-45b6-8032-4887d49b9594';
+// export const bazeAuthUrl = 'https://auth.nomoreparties.co';
 

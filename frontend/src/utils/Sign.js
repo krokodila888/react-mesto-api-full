@@ -1,9 +1,8 @@
-import { bazeAuthUrl, authorization } from './constants.js';
+import { bazeUrl } from './constants.js';
 
 export class Sign {
-  constructor({bazeAuthUrl, authorization}) {
-    this._bazeAuthUrl = bazeAuthUrl;
-    this._authorization = authorization
+  constructor({bazeUrl}) {
+    this._bazeUrl = bazeUrl;
   }
   
   _handleResult(res) {
@@ -14,31 +13,27 @@ export class Sign {
     }
   }
 
-  signIn(data) {
-    return fetch(`${bazeAuthUrl}/signin`, {
+  signIn(email, password) {
+    return fetch(`${bazeUrl}/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({
-        'password': data.password,
-        'email': data.email })
+        email,
+        password })
       })
-      //.then((response) => {
-      //  return response.json();
-     // })
       .then(this._handleResult)
-      .then((data) => {
-        localStorage.setItem( 'token', data.token );
-        })        
   } 
 
   signUp(data) {
-    return fetch(`${bazeAuthUrl}/signup`, {
+    return fetch(`${bazeUrl}/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({
         'password': data.password,
         'email': data.email })
@@ -46,16 +41,16 @@ export class Sign {
       .then(this._handleResult)
   } 
 
-  headerCheck(token) {
-    return fetch(`${bazeAuthUrl}/users/me`, {
+  checkToken(token) {
+    return fetch(`${bazeUrl}/users/me`, {
       method: 'GET',
+      credentials: 'include',
       headers: {
-        "Content-Type": "application/json",
-        "Authorization" : `Bearer ${token}`
-      }})
-      .then(res => res.json())
-      .then(data => data) 
-}}
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(this._handleResult)
+  }
+}
 
-export const sign = new Sign({ bazeAuthUrl, authorization });
-
+export const sign = new Sign({ bazeUrl });

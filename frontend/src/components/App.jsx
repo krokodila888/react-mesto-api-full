@@ -8,7 +8,7 @@ import ImagePopup from './ImagePopup';
 import '../index.css';
 import { api } from './../utils/Api';
 import { sign } from '../utils/Sign';
-import { CurrentUserContext, currentUser } from '../contexts/CurrentUserContext';
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
@@ -38,34 +38,58 @@ function App() {
     name: '',
     about: '',
   });
-  
+
   useEffect(() => {
-    if (loggedIn){
-      api
-        .getProfileInfo()
-        .then((data) => {
-          setCurrentUser(data);
+    loggedIn && Promise.all([
+      api.getProfileInfo(),
+      api.getInitialCards(),
+    ])
+      .then(([data, cards]) => {
+        setCurrentUser(data.user);
+        setCards(cards.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }, [loggedIn])
+
+  useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      sign.checkToken(jwt)
+        .then((res) => {
+          setEmail(res.data.email);
+          setLoggedIn(true);
+          navigate("/");
         })
-        .catch((err) => console.log(err))
-      }}, [loggedIn])
+        .catch((err) => {
+          console.log(err);
+        })
+    }
+  }, [])
 
   function openEditProfile() {
+    // eslint-disable-next-line no-lone-blocks
     {return setIsEditProfilePopupOpen(true)}
   }
   
   function openPopupAvatar() {
+    // eslint-disable-next-line no-lone-blocks
     {return setIsEditAvatarPopupOpen(true)}
   }
     
   function openPopupMesto() {
+    // eslint-disable-next-line no-lone-blocks
     {return setIsAddPlacePopupOpen(true)}
   }
 
   function openInfoTooltip() {
+    // eslint-disable-next-line no-lone-blocks
     {return setIsInfoTooltipOpen(true)}
   }
 
   function handleCardClick(data) {
+    // eslint-disable-next-line no-sequences
     return setIsImagePopupOpen(true), 
     setSelectedCard(data);
   }
@@ -82,37 +106,37 @@ function App() {
     api
       .editUserInfo(data)
       .then((data1) => {
-        setCurrentUser(data1);
+        setCurrentUser(data1.data);
         closeAllPopups()
     })
   }
 
-  function handleLoginUser(data) {
-    sign
-      .signIn(data)
-      .then((res) => {
-        setEmail(data.email);
+  function handleLoginUser(email, password) {
+    sign.signIn(email, password)
+    .then(() => {
+        setEmail(email);
+        setLoggedIn(true);
         navigate("/");
-      })
-      .catch((err) => 
-      {console.log(err);
+    })
+    .catch((err) => {
+      console.log(err);
       setInfoImage(notOk);
       setInfoTitle("Что-то пошло не так! Попробуйте ещё раз.");
       openInfoTooltip();
-      })
-   }
+    })
+  }
 
-  function handleRegisterUser(data) {
-    sign
-      .signUp(data)
-      .then((data) => {
+  function handleRegisterUser(email, password) {
+    sign.signUp(email, password)
+    .then((data) => {
+      if (data) {
         setInfoImage(ok);
         setInfoTitle("Вы успешно зарегистрировались!");
         openInfoTooltip();
         navigate("/sign-in");        
-      })
+      }
+    })
       .catch((err) => {
-        console.log(err);
         setInfoImage(notOk);
         setInfoTitle("Что-то пошло не так! Попробуйте ещё раз.");
         openInfoTooltip();
@@ -123,38 +147,28 @@ function App() {
     api
       .changeAvatar(data)
       .then((data1) => {
-        setCurrentUser(data1);
+        console.log(data1.data);
+        setCurrentUser(data1.data);
         closeAllPopups()
       })
       .catch((err) => console.log(err));
   }
 
-  useEffect(() => {
-    if (loggedIn){
-      api.getInitialCards()
-        .then((card) => {
-          setCards([...cards, ...card])
-      })
-        .catch(err => console.log(err))
-    }
-  }, [loggedIn])
-
-  function handleCardLike(card) {
-    // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
-    // Отправляем запрос в API и получаем обновлённые данные карточки
+  function handleCardLike(card, isLiked) {
+    // const isLiked = card.likes.some(i => i._id === currentUser._id);
     api.changeLikeCardStatus(card._id, isLiked)
       .then((newCard) => {
-        setCards((state) => state.map((item) => item._id === card._id ? newCard : item));
+        setCards((state) => state.map((item) => (item._id === card._id ? newCard.data : item)));
       })
       .catch((err) => console.log(err))
-  } 
+  }
 
   function handleCardDelete(card) {
-    const isOwn = card.owner._id === currentUser._id;
+    const isOwn = card.owner === currentUser._id;
     if (isOwn) return api.removeCard(card._id)
       .then(() => {
         const newCard = cards.filter((item) => item._id !== card._id);
+        console.log(newCard);
         setCards(newCard);
       })
       .catch((err) => console.log(err))
@@ -163,42 +177,22 @@ function App() {
   function handleAddPlaceSubmit(data) {
     api.postNewCard(data)
     .then((newCard) => {
-      setCards([newCard, ...cards]);
+      setCards([newCard.data, ...cards]);
       closeAllPopups()
     })
     .catch((err) => console.log(err))
   }
 
   function handleLogin() {
-    //e.preventDefault(); //эта часть под вопросом пока
     return setLoggedIn(true)
   }
 
   function handleLogOut() {
     localStorage.removeItem('token');
     setLoggedIn(false);
-    navigate("/sign-in");
+    navigate('/sign-in');
     setEmail('');
   }
-
-  function handleTokenCheck(){
-    console.log(localStorage);
-    const jwt = localStorage.token;
-    console.log(jwt);
-    if (jwt){
-      sign.headerCheck(jwt)
-        .then((res) => {
-          setLoggedIn(true);
-          setEmail(res.data.email);
-          navigate("/");
-      })
-      .catch((err) => console.log(`Ошибка ${err}`));
-    }
-  };
-      
-  useEffect(() => {
-    handleTokenCheck();
-  }, []);
 
   return (
     <>

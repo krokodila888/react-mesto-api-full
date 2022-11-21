@@ -6,13 +6,30 @@ function Login (props) {
   const [email, setEmail] = useState('');
   const {handleLogin, loginUser} = props;
  
-  function handleSubmit(e) {
+  /*function handleSubmit(e) {
     // Запрещаем браузеру переходить по адресу формы
       e.preventDefault();
     // Передаём значения управляемых компонентов во внешний обработчик
     const data = {password, email};
     console.log(data);
       loginUser(data);
+      handleLogin();
+    }*/
+
+    function handlePasswordChange(e) {
+      setPassword(e.target.value);
+    }
+  
+    function handleEmailChange(e) {
+      setEmail(e.target.value);
+    }
+  
+    function handleSubmit(e) {
+      e.preventDefault();
+      loginUser(
+        email,
+        password
+      );
       handleLogin();
     }
   
@@ -23,9 +40,9 @@ function Login (props) {
           Вход
         </p>
         <form onSubmit={handleSubmit} className="sign__form-container">
-          <input required id="emailLogin" name="email" placeholder="E-mail" type="text" value={email} onChange={e => setEmail(e.target.value)} className="sign__input"/>
+          <input required id="emailLogin" name="email" placeholder="E-mail" type="text" value={email} onChange={handleEmailChange} className="sign__input"/>
           <span className="input-emailLogin-error popup__input-error"> </span>
-          <input required id="passwordLogin" name="password" type="password" placeholder="Пароль" value={password} onChange={e => setPassword(e.target.value)} className="sign__input" />
+          <input required id="passwordLogin" name="password" type="password" placeholder="Пароль" value={password} onChange={handlePasswordChange} className="sign__input" />
           <span className="input-passwordLogin-error popup__input-error"> </span>
           <button type="submit" className="sign__button">Войти</button>
         </form>
