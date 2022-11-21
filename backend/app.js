@@ -14,14 +14,9 @@ const {
 } = require('./utils/utils');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
-const corsOptions = {
-  origin: '*',
-  credentials: true,
-  optionOkStatus: 200,
-};
+const { PORT = 3001 } = process.env;
+
 const app = express();
-app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet());
 app.use(bodyParser.json());
@@ -35,17 +30,41 @@ mongoose.connect(
   },
 );
 
+app.use(cors({
+  origin: [
+    'http://one-for-study.nomoredomains.icu/',
+    'https://one-for-study.nomoredomains.icu/',
+    'http://api.one-for-study.nomoredomains.icu/',
+    'https://api.one-for-study.nomoredomains.icu/',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://localhost:3000',
+    'https://localhost:3001',
+    'http://localhost',
+  ],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Access-Control-Allow-Methods',
+    'Access-Control-Request-Headers',
+    'Access-Control-Allow-Origin',
+  ],
+  credentials: true,
+  enablePreflight: true,
+}));
+
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
+// const corsHandler = require('./middlewares/corsHandler');
 
+// app.use(corsHandler);
 app.use(requestLogger);
-
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-
+// app.options('*', cors());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -76,11 +95,8 @@ app.use('*', () => {
 });
 
 app.use(errorLogger);
-
 app.use(errors());
-
 app.use(errorsHandler);
-
 app.listen(PORT, () => {
   // console.log(`App listen to ${PORT} port`);
 });
