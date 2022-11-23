@@ -12,8 +12,8 @@
 
 Надеюсь, это будет работать.
 
-IP 158.160.17.227
-Frontend http://one-for-study.nomoredomains.icu/
-Backend https://...
+IP 84.201.139.100 
+Frontend https://one-for-study.nomoredomains.icu/
+Backend https://api.one-for-study.nomoredomains.icu/
 
 Ссылка на репозиторий: git@github.com:krokodila888/express-mesto-gha.git
