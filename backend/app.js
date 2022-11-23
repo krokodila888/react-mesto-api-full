@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const cors = require('cors');
+//const cors = require('cors');
 const helmet = require('helmet');
 const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
@@ -17,6 +18,9 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { PORT = 3001 } = process.env;
 
 const app = express();
+const { cors } = require('./middlewares/corsHandler');
+app.use(cors);
+
 app.use(cookieParser());
 app.use(helmet());
 app.use(bodyParser.json());
@@ -29,8 +33,9 @@ mongoose.connect(
     // console.log('connected to MongoDB');
   },
 );
+//app.use(cors());
 
-app.use(cors({
+/*app.use(cors({
   origin: [
     'http://one-for-study.nomoredomains.icu/',
     'https://one-for-study.nomoredomains.icu/',
@@ -51,7 +56,7 @@ app.use(cors({
   ],
   credentials: true,
   enablePreflight: true,
-}));
+}));*/
 
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
