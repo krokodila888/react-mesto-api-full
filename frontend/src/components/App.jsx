@@ -32,32 +32,51 @@ function App() {
   const [infoTitle, setInfoTitle] = useState('');
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
-  
-  const [currentUser, setCurrentUser] = useState({
-    avatar: '',
-    name: '',
-    about: '',
-  });
+  const [currentUser, setCurrentUser] = useState({});
 
   useEffect(() => {
+    if (!loggedIn) return
+    setLoggedIn(true)
+    Promise.all([
+      api.getProfileInfo(),
+      api.getInitialCards(),
+    ])
+      .then(([data, cards]) => {
+        setCards(cards.data);
+        setCurrentUser((badData) => {
+          return { ...badData, ...data }
+        })
+      })
+      /* .then(([data, cards]) => {
+        console.log(data.user);
+        setCurrentUser(data.user);
+        setCards(cards.data);
+      })*/
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false))
+  }, [loggedIn])
+
+/* useEffect(() => {
     loggedIn && Promise.all([
       api.getProfileInfo(),
       api.getInitialCards(),
     ])
       .then(([data, cards]) => {
+        console.log(data.user);
         setCurrentUser(data.user);
         setCards(cards.data);
       })
       .catch((err) => {
         console.log(err);
       })
-  }, [loggedIn])
+  }, [loggedIn])*/
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
       sign.checkToken(jwt)
         .then((res) => {
+          console.log(res);
           setEmail(res.data.email);
           setLoggedIn(true);
           navigate("/");
@@ -124,6 +143,22 @@ function App() {
       setInfoTitle("Что-то пошло не так! Попробуйте ещё раз.");
       openInfoTooltip();
     })
+    Promise.all([
+      api.getProfileInfo(),
+    ])
+      .then(([data]) => {
+        setCurrentUser((badData) => {
+          return { ...badData, ...data }
+        })
+      })
+   /* api.getProfileInfo()
+      .then((data1) => {
+        console.log(data1);
+        setCurrentUser(data1.user);
+      }) */
+      .catch((err) => {
+        console.log(err);
+      })
   }
 
   function handleRegisterUser(email, password) {
@@ -188,7 +223,7 @@ function App() {
   }
 
   function handleLogOut() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('jwt');
     setLoggedIn(false);
     navigate('/sign-in');
     setEmail('');

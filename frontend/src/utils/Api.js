@@ -111,12 +111,12 @@ export class Api {
     return this._changedAvatar
   }
 
-  /*signout() {
+  signout() {
     return fetch(`${this._bazeUrl}/signout`, {
       headers: this._headers,
       credentials: 'include',
     }).then(this._handleResponse);
-  }*/
+  }
 }
 
 export const api = new Api(bazeUrl);

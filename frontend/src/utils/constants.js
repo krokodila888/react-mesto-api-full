@@ -9,4 +9,4 @@ export const enableValidationClasses = ({
 });
   
 // export const bazeUrl = '84.201.139.100'; 
-export const bazeUrl = 'http://one-for-study.nomoredomains.icu'; 
+export const bazeUrl = 'https://api.one-for-study.nomoredomains.icu';
