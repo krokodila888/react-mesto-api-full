@@ -1,10 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
 const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
-//const cors = require('cors');
 const helmet = require('helmet');
 const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
@@ -30,46 +29,20 @@ mongoose.connect(
   'mongodb://localhost:27017/mestodb',
   (err) => {
     if (err) throw err;
-    // console.log('connected to MongoDB');
   },
 );
-//app.use(cors());
-
-/*app.use(cors({
-  origin: [
-    'http://one-for-study.nomoredomains.icu/',
-    'https://one-for-study.nomoredomains.icu/',
-    'http://api.one-for-study.nomoredomains.icu/',
-    'https://api.one-for-study.nomoredomains.icu/',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'https://localhost:3000',
-    'https://localhost:3001',
-    'http://localhost',
-  ],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'Access-Control-Allow-Methods',
-    'Access-Control-Request-Headers',
-    'Access-Control-Allow-Origin',
-  ],
-  credentials: true,
-  enablePreflight: true,
-}));*/
 
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
-// const corsHandler = require('./middlewares/corsHandler');
 
-// app.use(corsHandler);
+app.use(auth);
 app.use(requestLogger);
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-// app.options('*', cors());
+
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -87,10 +60,10 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(auth);
-
 app.get('/signout', (req, res) => {
+  console.log(cookie);
   res.clearCookie('jwt').send({ message: 'Выход' });
+  console.log(cookie);
 });
 
 app.use(usersRouter);

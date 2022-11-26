@@ -1,17 +1,8 @@
 const allowedCors = [
   'https://one-for-study.nomoredomains.icu',
   'http://one-for-study.nomoredomains.icu',
-  //'https://one-for-study.nomoredomains.icu/',
-  //'http://one-for-study.nomoredomains.icu/',
-  //'http://api.one-for-study.nomoredomains.icu/',
-  //'https://api.one-for-study.nomoredomains.icu/',
-  //'http://localhost:3000',
   'http://localhost:3001',
-  //'https://localhost:3000',
-  //'https://localhost:3001',
-  //'http://localhost',
-  //'https://api.one-for-study.nomoredomains.icu/signup',
-  //'https://one-for-study.nomoredomains.icu',
+  'http://localhost:3000',
 ];
 
 module.exports.cors = (req, res, next) => {
