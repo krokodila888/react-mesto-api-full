@@ -34,52 +34,36 @@ function App() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState({});
 
+  function getAllData(){
+      setLoggedIn(true);
+      Promise.all([api.getProfileInfo(), api.getInitialCards()])
+      .then(([userData, initialCards]) => {
+        setCurrentUser(userData.user);
+        setEmail(userData.user.email);
+        setCards(initialCards.data.reverse());
+    })
+      .catch((err) => console.log(err))
+    }
+
   function handleCheckToken() {
-    sign.checkToken() 
-      .then(() => {
-        setLoggedIn(true)
-        navigate('/')
-      })
-      .catch((err) => {
-        navigate('/sign-in');
-        setLoggedIn(false);
-        console.log(err)
-      });
+    sign.checkToken()
+    .then(() => {
+      setLoggedIn(true)
+      navigate('/')     
+    })
+    .then(() => {
+      getAllData()        
+    })
+    .catch((err) => {
+      navigate('/sign-in');
+      setLoggedIn(false);
+      console.log(err)
+    })
   }
 
   useEffect(() => {
     handleCheckToken()
   }, [])
-
-  useEffect(() => {
-    if (loggedIn) return
-    setLoggedIn(true)
-    Promise.all([
-      api.getProfileInfo(),
-      api.getInitialCards(),
-    ])
-      .then(([userData, cards]) => {
-        //setCards(cards.data);
-        setCurrentUser(userData.user);
-        setEmail(userData.user.email);
-        setCards(cards.data.reverse());
-      })
-  })
-
-  function getAlldata(){
-    if(loggedIn) {
-      Promise.all([api.getProfileInfo(), api.getInitialCards()])
-      .then(([userData, initialCards])=>{
-        setCurrentUser(userData.user);
-        setEmail(userData.user.email);
-        setCards(initialCards.data.reverse());
-      }).catch(err=>{console.log(err)})
-    }
-  }
-
-  /* useEffect(() => {
-    getAlldata()
-  }, [loggedIn])*/
 
   function openEditProfile() {
     // eslint-disable-next-line no-lone-blocks
@@ -185,12 +169,9 @@ function App() {
     .then(() => {
 	    setLoggedIn(true);
 	    navigate('/');
-	    getAlldata();
     })
     .then(() => {
-	    setLoggedIn(true);
-	    navigate('/');
-	    getAlldata();
+	    getAllData();
     })
     .catch((err) => {
       console.log(err);
@@ -216,10 +197,6 @@ function App() {
       })
     }
   }
-
-  useEffect(() => {
-    handleCheckToken()
-  }, [])
 
   return (
     <>
