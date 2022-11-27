@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const { createUser, login } = require('./controllers/users');
+const { createUser, login, logout } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const NotFoundError = require('./errors/NotFoundError');
@@ -35,7 +35,6 @@ mongoose.connect(
 const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
 
-app.use(auth);
 app.use(requestLogger);
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -60,11 +59,14 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.use(auth);
+
 app.get('/signout', (req, res) => {
-  console.log(cookie);
+  // console.log(cookie);
   res.clearCookie('jwt').send({ message: 'Выход' });
-  console.log(cookie);
+  // console.log(cookie);
 });
+// app.get('/signout', logout);
 
 app.use(usersRouter);
 app.use(cardsRouter);
