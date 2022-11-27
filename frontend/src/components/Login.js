@@ -1,37 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { CurrentUserContext, currentUser } from '../contexts/CurrentUserContext';
+import React, { useState } from "react";
 
 function Login (props) {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const {handleLogin, loginUser} = props;
  
-  /*function handleSubmit(e) {
-    // Запрещаем браузеру переходить по адресу формы
-      e.preventDefault();
-    // Передаём значения управляемых компонентов во внешний обработчик
-    const data = {password, email};
-    console.log(data);
-      loginUser(data);
-      handleLogin();
-    }*/
-
-    function handlePasswordChange(e) {
-      setPassword(e.target.value);
-    }
+  function handlePasswordChange(e) {
+    setPassword(e.target.value);
+  }
   
-    function handleEmailChange(e) {
-      setEmail(e.target.value);
-    }
+  function handleEmailChange(e) {
+    setEmail(e.target.value);
+  }
   
-    function handleSubmit(e) {
-      e.preventDefault();
-      loginUser(
-        email,
-        password
-      );
-      handleLogin();
-    }
+  function handleSubmit(e) {
+    e.preventDefault();
+    loginUser(
+      email,
+      password
+    );
+    handleLogin();
+  }
   
   return(
      <div className='sign__background'>

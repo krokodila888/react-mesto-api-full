@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -34,53 +34,47 @@ function App() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState({});
 
-  function handleCheckToken() {
-    sign.checkToken() 
-      .then((response) => {
-        setEmail(response.email)
-        setLoggedIn(true)
-        navigate('/')
-      })
-      .catch((err) => {
-        navigate('/sign-in');
-        setLoggedIn(false);
-        console.log(err)
-      });
-  }
+ useEffect(() => {
+    console.log(loggedIn);
+    console.log(currentUser);
+    console.log(email);
+ });
 
   useEffect(() => {
-    if (loggedIn) return
-    setLoggedIn(true)
-    Promise.all([
+    //console.log(loggedIn);
+    //console.log(currentUser);
+    //console.log(email);
+    loggedIn && Promise.all([
       api.getProfileInfo(),
       api.getInitialCards(),
     ])
-      .then(([userData, cards]) => {
-        setCards(cards.data);
-        setCurrentUser(userData.user);
-        setEmail(userData.user.email);
+      .then(([data, cards]) => {
+        console.log(data.user);
+        setCurrentUser(data.user);
         setCards(cards.data.reverse());
       })
-  })
+      .catch((err) => {
+        console.log(err);
+      })
+  }, [loggedIn])
 
-  function getAlldata(){
-    if(loggedIn) {
-      Promise.all([api.getProfileInfo(), api.getInitialCards()])
-      .then(([userData, initialCards])=>{
-        setCurrentUser(userData.user);
-        setEmail(userData.user.email);
-        setCards(initialCards.data.reverse());
-      }).catch(err=>{console.log(err)})
-    }
-  }
- 
   useEffect(() => {
-    handleCheckToken()
+    api.getProfileInfo() 
+      .then((res) => {
+        //console.log("res: " + res);
+	//console.log("loggedIn: " + loggedIn);
+	//console.log("email: " + email);
+        setEmail(res.data.email);
+        setLoggedIn(true);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+	//console.log("res: " + res);
+        //console.log("loggedIn: " + loggedIn);
+        //console.log("email: " + email);
   }, [])
-
-/*  useEffect(() => {
-    getAlldata()
-  }, [loggedIn])*/
 
   function openEditProfile() {
     // eslint-disable-next-line no-lone-blocks
@@ -119,50 +113,43 @@ function App() {
   function handleUpdateUser(data) {
     api
       .editUserInfo(data)
-      .then((newData) => {
-        setCurrentUser(newData.data);
+      .then((data1) => {
+        setCurrentUser(data1.data);
         closeAllPopups()
     })
-    .catch((err) => console.log(err))
   }
 
-  function handleUpdateAvatar(data) {
-    api
-      .changeAvatar(data)
-      .then((newData) => {
-        setCurrentUser(newData.data);
-        closeAllPopups()
-      })
-      .catch((err) => console.log(err));
-  }
-
-  function handleAddPlaceSubmit(data) {
-    api.postNewCard(data)
-    .then((newCard) => {
-      setCards([newCard.data, ...cards]);
-      closeAllPopups()
+  function handleLoginUser(email, password) {
+    sign.signIn(email, password)
+   /* .then((res) => {
+      if (res.email) {
+        setEmail(res.email)
+        setLoggedIn(true)
+          navigate('/')
+        }
+        return res
+      })*/
+    .then(() => {
+        console.log(email);
+	setEmail(email);
+        setLoggedIn(true);
+        navigate("/");
     })
-    .catch((err) => console.log(err))
-  }
-
-  function handleCardLike(card, isLiked) {
-    api.changeLikeCardStatus(card._id, isLiked)
-      .then((newCard) => {
-        setCards((state) => state.map((item) => (item._id === card._id ? newCard.data : item)));
+    .catch((err) => {
+      console.log(err);
+      setInfoImage(notOk);
+      setInfoTitle("Что-то пошло не так! Попробуйте ещё раз.");
+      openInfoTooltip();
+    })
+   /* api.getProfileInfo()
+      .then((data1) => {
+        console.log(data1);
+        setCurrentUser(data1.user);
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.log(err);
+      })*/
   }
-
-  function handleCardDelete(card) {
-    const isOwn = card.owner === currentUser._id;
-    if (isOwn) return api.removeCard(card._id)
-      .then(() => {
-        const newCard = cards.filter((item) => item._id !== card._id);
-        console.log(newCard);
-        setCards(newCard);
-      })
-      .catch((err) => console.log(err))
-  } 
 
   function handleRegisterUser(email, password) {
     sign.signUp(email, password)
@@ -181,46 +168,67 @@ function App() {
       })
   }
 
-  function handleLoginUser(email, password) {
-    sign.signIn(email, password)
-    .then(() => {
-	    setLoggedIn(true);
-	    navigate('/');
-	    getAlldata();
+  function handleUpdateAvatar(data) {
+    api
+      .changeAvatar(data)
+      .then((data1) => {
+        console.log(data1.data);
+        setCurrentUser(data1.data);
+        closeAllPopups()
+      })
+      .catch((err) => console.log(err));
+  }
+
+  function handleCardLike(card, isLiked) {
+    // const isLiked = card.likes.some(i => i._id === currentUser._id);
+    api.changeLikeCardStatus(card._id, isLiked)
+      .then((newCard) => {
+        setCards((state) => state.map((item) => (item._id === card._id ? newCard.data : item)));
+      })
+      .catch((err) => console.log(err))
+  }
+
+  function handleCardDelete(card) {
+    const isOwn = card.owner === currentUser._id;
+    if (isOwn) return api.removeCard(card._id)
+      .then(() => {
+        const newCard = cards.filter((item) => item._id !== card._id);
+        console.log(newCard);
+        setCards(newCard);
+      })
+      .catch((err) => console.log(err))
+  } 
+
+  function handleAddPlaceSubmit(data) {
+    api.postNewCard(data)
+    .then((newCard) => {
+      setCards([newCard.data, ...cards]);
+      closeAllPopups()
     })
-    .then(() => {
-	    setLoggedIn(true);
-	    navigate('/');
-	    getAlldata();
-    })
-    .catch((err) => {
-      console.log(err);
-      setInfoImage(notOk);
-      setInfoTitle("Что-то пошло не так! Попробуйте ещё раз.");
-      openInfoTooltip();
-    })
+    .catch((err) => console.log(err))
   }
 
   function handleLogin() {
-    return setLoggedIn(true)
+    //return setLoggedIn(true);
+ useEffect(() => {
+    console.log(loggedIn);
+    console.log(currentUser);
+    console.log(email);
   }
 
   function handleLogOut() {
     if (loggedIn) {
-      sign
-      .signOut()
+      api
+      .signout()
         .then(()=>{
           setEmail('');
           setLoggedIn(false);
-          setCurrentUser({ _id: '', email: '', name: '', about: '', avatar: '' });
           navigate('/sign-in');
+          setCurrentUser({ _id: '', email: '', name: '', about: '', avatar: '' });
+
       })
     }
   }
-
-  useEffect(() => {
-    handleCheckToken()
-  }, [])
 
   return (
     <>
@@ -229,7 +237,6 @@ function App() {
           <Header 
           email={email}
           exitProfile={handleLogOut}
-          loggedIn={loggedIn}
           />
           <Routes>
             <Route path="/sign-in" element={<Login handleLogin={handleLogin} loginUser = {handleLoginUser}/>}>

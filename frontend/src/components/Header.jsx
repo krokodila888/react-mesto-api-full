@@ -20,7 +20,7 @@ function Header(props) {
           <Route path="/" element={
             <>
               <p className='header__text'>{email}</p>
-              <Link to="/sign-up" className="sign__link">Выйти</Link>
+              <Link to="/sign-in" className="sign__link" onClick={exitProfile}>Выйти</Link>
             </>
           }/>
         </Routes> 
@@ -28,6 +28,5 @@ function Header(props) {
     </header>
     );
   }
-  
-  export default Header;
-  
+
+export default Header;

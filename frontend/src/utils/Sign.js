@@ -41,7 +41,17 @@ export class Sign {
       .then(this._handleResult)
   } 
 
-  checkToken(token) {
+  signOut() {
+    return fetch(`${bazeUrl}/signout`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    })
+  }
+
+  checkToken() {
     return fetch(`${bazeUrl}/users/me`, {
       method: 'GET',
       credentials: 'include',
