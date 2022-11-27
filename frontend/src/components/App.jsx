@@ -36,8 +36,7 @@ function App() {
 
   function handleCheckToken() {
     sign.checkToken() 
-      .then((response) => {
-        setEmail(response.email)
+      .then(() => {
         setLoggedIn(true)
         navigate('/')
       })
@@ -49,6 +48,10 @@ function App() {
   }
 
   useEffect(() => {
+    handleCheckToken()
+  }, [])
+
+  useEffect(() => {
     if (loggedIn) return
     setLoggedIn(true)
     Promise.all([
@@ -56,7 +59,7 @@ function App() {
       api.getInitialCards(),
     ])
       .then(([userData, cards]) => {
-        setCards(cards.data);
+        //setCards(cards.data);
         setCurrentUser(userData.user);
         setEmail(userData.user.email);
         setCards(cards.data.reverse());
@@ -73,12 +76,8 @@ function App() {
       }).catch(err=>{console.log(err)})
     }
   }
- 
-  useEffect(() => {
-    handleCheckToken()
-  }, [])
 
-/*  useEffect(() => {
+  /* useEffect(() => {
     getAlldata()
   }, [loggedIn])*/
 
