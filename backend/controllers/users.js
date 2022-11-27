@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
-// const AuthError = require('../errors/AuthError');
 const DoubleEmailError = require('../errors/DoubleEmailError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -124,25 +123,15 @@ module.exports.login = (req, res, next) => {
           maxAge: 3600000,
           httpOnly: true,
           sameSite: true,
+          secure: true,
         })
-        //.send({ message: 'Вход выполнен' });
-        .send({ token });
+        .send({ message: 'Вход выполнен' });
+        // .send({ token });
     })
     .catch(next);
 };
 
-/* module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
-          //sameSite: true,
-        })
-        .send({ message: 'Вход выполнен' });
-    })
-    .catch(next);
-}; */
+module.exports.logout = (req, res, next) => {
+  res.clearCookie('jwt').send({ message: 'Вы точно вышли из профиля' })
+  .catch(next);
+};
