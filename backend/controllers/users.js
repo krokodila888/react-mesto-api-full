@@ -126,12 +126,11 @@ module.exports.login = (req, res, next) => {
           secure: true,
         })
         .send({ message: 'Вход выполнен' });
-        // .send({ token });
     })
     .catch(next);
 };
 
 module.exports.logout = (req, res, next) => {
   res.clearCookie('jwt').send({ message: 'Вы точно вышли из профиля' })
-  .catch(next);
+    .catch(next);
 };

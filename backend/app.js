@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const { errors, celebrate, Joi } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const { createUser, login, logout } = require('./controllers/users');
+const { createUser, login } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const NotFoundError = require('./errors/NotFoundError');
@@ -18,8 +18,8 @@ const { PORT = 3001 } = process.env;
 
 const app = express();
 const { cors } = require('./middlewares/corsHandler');
-app.use(cors);
 
+app.use(cors);
 app.use(cookieParser());
 app.use(helmet());
 app.use(bodyParser.json());
@@ -62,9 +62,7 @@ app.post('/signup', celebrate({
 app.use(auth);
 
 app.get('/signout', (req, res) => {
-  // console.log(cookie);
   res.clearCookie('jwt').send({ message: 'Выход' });
-  // console.log(cookie);
 });
 // app.get('/signout', logout);
 
