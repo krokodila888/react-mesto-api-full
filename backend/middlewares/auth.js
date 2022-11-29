@@ -6,7 +6,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
   if (!token) {
-    next(new AuthError('Что-то пошло не так. Пожалуйста, попробуйте еще раз.'));
+    return next(new AuthError('Что-то пошло не так. Пожалуйста, попробуйте еще раз.'));
   }
   let payload;
   try {
