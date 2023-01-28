@@ -23,6 +23,6 @@
 
 (дисклеймер: орущие коты. Много орущих котов 🙀🙀🙀)
 
-##### **Деплой:**
+#### **Деплой:**
 ##### **Frontend https://one-for-study.nomoredomains.icu/**
 ##### **Backend https://api.one-for-study.nomoredomains.icu/**
